@@ -143,19 +143,19 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
   return (
     <div className="space-y-8">
       {/* Desafio Anual */}
-      <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture">
+      <div className="rounded-xl bg-card p-5 animate-fade-in border border-border">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Target size={18} className="text-primary" />
-            <h3 className="text-sm font-semibold font-serif">Desafio de Leitura {new Date().getFullYear()}</h3>
+            <h3 className="text-sm font-semibold">Desafio de Leitura {new Date().getFullYear()}</h3>
           </div>
           <span className="text-sm font-bold text-primary">{stats.thisYear}/{readingGoal}</span>
         </div>
-        <Progress value={Math.min(goalProgress, 100)} className="h-2.5" />
+        <Progress value={Math.min(goalProgress, 100)} className="h-2" />
         <p className="text-xs text-muted-foreground mt-2">
           {goalProgress >= 100
             ? '🎉 Meta alcançada! Parabéns!'
-            : `Faltam ${readingGoal - stats.thisYear} livros — ${pagesPerDayProjection(stats.thisYear, readingGoal)}`}
+            : `Faltam ${readingGoal - stats.thisYear} livros`}
         </p>
       </div>
 
