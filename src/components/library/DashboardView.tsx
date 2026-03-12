@@ -3,7 +3,7 @@ import { Book } from '@/types/book';
 import KPICard from './KPICard';
 import {
   BookOpen, CheckCircle2, Eye, BookMarked, FileText,
-  Star, Award, CalendarDays, TrendingUp, Trophy, Quote, Target,
+  Star, Award, CalendarDays, Target, Trophy, Quote,
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis,
@@ -45,17 +45,6 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
       return new Date(b.endDate).getFullYear() === new Date().getFullYear();
     }).length;
 
-    // Pages per day (last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    let recentPages = 0;
-    books.forEach(b => {
-      b.readingSessions?.forEach(s => {
-        if (new Date(s.date) >= thirtyDaysAgo) recentPages += s.pagesRead;
-      });
-    });
-    const pagesPerDay = (recentPages / 30).toFixed(1);
-
     // Top authors
     const authorCounts: Record<string, { count: number; totalRating: number; rated: number }> = {};
     books.forEach(b => {
@@ -86,6 +75,8 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
       .sort((a, b) => b.addedAt.localeCompare(a.addedAt))[0] ?? null;
 
     // Recently added (last month)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const recentlyAdded = books
       .filter(b => b.startDate && new Date(b.startDate) >= thirtyDaysAgo)
       .slice(0, 3);
@@ -99,7 +90,6 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
       avgRating,
       fiveStars,
       thisYear,
-      pagesPerDay,
       readingBooks: reading,
       recentlyCompleted: [...completed]
         .sort((a, b) => (b.endDate ?? '').localeCompare(a.endDate ?? ''))
@@ -138,7 +128,46 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
       .map(([year, count]) => ({ year, count }));
   }, [books]);
 
+  // Average rating by genre
+  const avgRatingByGenre = useMemo(() => {
+    const genreStats: Record<string, { total: number; count: number }> = {};
+    books.forEach(b => {
+      if (b.rating) {
+        if (!genreStats[b.genre]) genreStats[b.genre] = { total: 0, count: 0 };
+        genreStats[b.genre].total += b.rating;
+        genreStats[b.genre].count++;
+      }
+    });
+    return Object.entries(genreStats)
+      .map(([genre, data]) => ({ genre, avgRating: parseFloat((data.total / data.count).toFixed(1)) }))
+      .sort((a, b) => b.avgRating - a.avgRating);
+  }, [books]);
+
+  // Average rating by author (2+ books only)
+  const avgRatingByAuthor = useMemo(() => {
+    const authorStats: Record<string, { total: number; ratedCount: number; bookCount: number }> = {};
+    books.forEach(b => {
+      if (!authorStats[b.authors]) authorStats[b.authors] = { total: 0, ratedCount: 0, bookCount: 0 };
+      authorStats[b.authors].bookCount++;
+      if (b.rating) {
+        authorStats[b.authors].total += b.rating;
+        authorStats[b.authors].ratedCount++;
+      }
+    });
+    return Object.entries(authorStats)
+      .filter(([, data]) => data.bookCount >= 2 && data.ratedCount > 0)
+      .map(([author, data]) => ({ author, avgRating: parseFloat((data.total / data.ratedCount).toFixed(1)) }))
+      .sort((a, b) => b.avgRating - a.avgRating);
+  }, [books]);
+
   const goalProgress = Math.round((stats.thisYear / readingGoal) * 100);
+
+  const tooltipStyle = {
+    backgroundColor: 'hsl(var(--card))',
+    border: '1px solid hsl(var(--border))',
+    borderRadius: '12px',
+    fontSize: '13px',
+  };
 
   return (
     <div className="space-y-8">
@@ -159,7 +188,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
         </p>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Cards — removed "Ritmo" (pagesPerDay) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KPICard title="Total de Livros" value={stats.total} icon={<BookOpen size={20} />} delay={0} />
         <KPICard title="Concluídos" value={stats.completed} icon={<CheckCircle2 size={20} />} delay={50} />
@@ -168,7 +197,6 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
         <KPICard title="Páginas Lidas" value={stats.totalPages.toLocaleString('pt-BR')} icon={<FileText size={20} />} delay={200} />
         <KPICard title="Nota Média" value={stats.avgRating} icon={<Star size={20} />} delay={250} />
         <KPICard title="5 Estrelas" value={stats.fiveStars} icon={<Award size={20} />} delay={300} />
-        <KPICard title="Ritmo" value={`${stats.pagesPerDay} pág/dia`} icon={<TrendingUp size={20} />} delay={350} subtitle="Últimos 30 dias" />
       </div>
 
       {/* Book of the Week + Quotes Counter */}
@@ -223,14 +251,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
                   <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '12px',
-                  fontSize: '13px',
-                }}
-              />
+              <Tooltip contentStyle={tooltipStyle} />
               <Legend iconSize={8} wrapperStyle={{ fontSize: '12px' }} />
             </PieChart>
           </ResponsiveContainer>
@@ -244,14 +265,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis type="number" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
               <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '12px',
-                  fontSize: '13px',
-                }}
-              />
+              <Tooltip contentStyle={tooltipStyle} />
               <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -265,19 +279,44 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="year" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
               <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" allowDecimals={false} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '12px',
-                  fontSize: '13px',
-                }}
-              />
+              <Tooltip contentStyle={tooltipStyle} />
               <Bar dataKey="count" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
+
+      {/* Average Rating by Genre */}
+      {avgRatingByGenre.length > 0 && (
+        <div className="rounded-xl bg-card p-5 animate-fade-in border border-border">
+          <h3 className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-widest">Nota Média por Gênero</h3>
+          <ResponsiveContainer width="100%" height={Math.max(180, avgRatingByGenre.length * 40)}>
+            <BarChart data={avgRatingByGenre} layout="vertical" margin={{ left: 10, right: 30 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis type="number" domain={[0, 5]} tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
+              <YAxis type="category" dataKey="genre" width={120} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+              <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`${value} ★`, 'Nota Média']} />
+              <Bar dataKey="avgRating" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* Average Rating by Author (2+ books) */}
+      {avgRatingByAuthor.length > 0 && (
+        <div className="rounded-xl bg-card p-5 animate-fade-in border border-border">
+          <h3 className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-widest">Nota Média por Autor (2+ livros)</h3>
+          <ResponsiveContainer width="100%" height={Math.max(180, avgRatingByAuthor.length * 40)}>
+            <BarChart data={avgRatingByAuthor} layout="vertical" margin={{ left: 10, right: 30 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis type="number" domain={[0, 5]} tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
+              <YAxis type="category" dataKey="author" width={140} tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+              <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`${value} ★`, 'Nota Média']} />
+              <Bar dataKey="avgRating" fill="hsl(var(--chart-2))" radius={[0, 4, 4, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       {/* Top Authors */}
       {stats.topAuthors.length > 0 && (
@@ -391,7 +430,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
                   <p className="text-xs text-muted-foreground">{book.authors}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-semibold">{book.rating}★</p>
+                  <StarRating rating={book.rating} size={12} />
                   <p className="text-xs text-muted-foreground">
                     {book.endDate && new Date(book.endDate).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
                   </p>
@@ -404,10 +443,5 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
     </div>
   );
 };
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function pagesPerDayProjection(_current: number, _goal: number): string {
-  return '';
-}
 
 export default DashboardView;

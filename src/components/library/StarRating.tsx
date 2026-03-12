@@ -18,8 +18,10 @@ const StarRating = ({ rating, maxStars = 5, size = 16, interactive = false, onCh
           size={size}
           className={cn(
             'transition-colors',
-            i < (rating ?? 0) ? 'fill-gold text-gold' : 'text-muted-foreground/30',
-            interactive && 'cursor-pointer hover:text-gold'
+            i < (rating ?? 0)
+              ? 'fill-[hsl(var(--gold))] text-[hsl(var(--gold))]'
+              : 'text-[hsl(var(--star-inactive))]',
+            interactive && 'cursor-pointer hover:text-[hsl(var(--gold))]'
           )}
           onClick={() => interactive && onChange?.(i + 1)}
         />

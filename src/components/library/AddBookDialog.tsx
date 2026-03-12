@@ -11,7 +11,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import StarRating from './StarRating';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface AddBookDialogProps {
@@ -31,6 +31,9 @@ const AddBookDialog = ({ open, onOpenChange, onAdd }: AddBookDialogProps) => {
   const [form, setForm] = useState<Partial<Book>>(emptyBook());
   const [searchQuery, setSearchQuery] = useState('');
   const [searching, setSearching] = useState(false);
+  const [isbnQuery, setIsbnQuery] = useState('');
+  const [isbnSearching, setIsbnSearching] = useState(false);
+  const [isbnMessage, setIsbnMessage] = useState('');
 
   const set = (key: keyof Book, value: unknown) => setForm(prev => ({ ...prev, [key]: value }));
 
@@ -64,6 +67,37 @@ const AddBookDialog = ({ open, onOpenChange, onAdd }: AddBookDialogProps) => {
     }
   };
 
+  const searchByISBN = async () => {
+    const isbn = isbnQuery.trim().replace(/[-\s]/g, '');
+    if (!isbn) return;
+    setIsbnSearching(true);
+    setIsbnMessage('');
+    try {
+      const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${encodeURIComponent(isbn)}&format=json&jscmd=data`);
+      const data = await res.json();
+      const key = `ISBN:${isbn}`;
+      if (data[key]) {
+        const info = data[key];
+        setForm(prev => ({
+          ...prev,
+          title: info.title || prev.title,
+          authors: info.authors?.map((a: { name: string }) => a.name).join(', ') || prev.authors,
+          pages: info.number_of_pages || prev.pages,
+          coverUrl: info.cover?.medium || info.cover?.large || prev.coverUrl,
+          isbn: isbn || prev.isbn,
+          publisher: info.publishers?.[0]?.name || prev.publisher,
+        }));
+        toast.success('Dados encontrados via ISBN!');
+      } else {
+        setIsbnMessage('Livro não encontrado — preencha manualmente.');
+      }
+    } catch {
+      setIsbnMessage('Erro ao buscar ISBN — preencha manualmente.');
+    } finally {
+      setIsbnSearching(false);
+    }
+  };
+
   const handleSubmit = () => {
     if (!form.title || !form.authors) {
       toast.error('Título e autor são obrigatórios');
@@ -92,6 +126,8 @@ const AddBookDialog = ({ open, onOpenChange, onAdd }: AddBookDialogProps) => {
     };
     onAdd(newBook);
     setForm(emptyBook());
+    setIsbnQuery('');
+    setIsbnMessage('');
     onOpenChange(false);
     toast.success('Livro adicionado!');
   };
@@ -102,6 +138,29 @@ const AddBookDialog = ({ open, onOpenChange, onAdd }: AddBookDialogProps) => {
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Adicionar Livro</DialogTitle>
         </DialogHeader>
+
+        {/* ISBN Lookup */}
+        <div className="space-y-2 mb-2">
+          <Label className="text-sm font-medium flex items-center gap-1.5">
+            <BookOpen size={14} />
+            Buscar por ISBN
+          </Label>
+          <div className="flex gap-2">
+            <Input
+              placeholder="Ex: 978-8535914849"
+              value={isbnQuery}
+              onChange={e => { setIsbnQuery(e.target.value); setIsbnMessage(''); }}
+              onKeyDown={e => e.key === 'Enter' && searchByISBN()}
+              className="flex-1"
+            />
+            <Button variant="secondary" onClick={searchByISBN} disabled={isbnSearching}>
+              {isbnSearching ? <Loader2 size={16} className="animate-spin" /> : 'Buscar'}
+            </Button>
+          </div>
+          {isbnMessage && (
+            <p className="text-xs text-muted-foreground">{isbnMessage}</p>
+          )}
+        </div>
 
         {/* Google Books Search */}
         <div className="flex gap-2 mb-4">
