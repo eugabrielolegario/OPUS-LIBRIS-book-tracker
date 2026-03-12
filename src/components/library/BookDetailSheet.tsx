@@ -293,8 +293,8 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
             {/* Notes */}
             {book.notes && (
               <div>
-                <h4 className="text-sm font-semibold mb-2 font-serif">Notas de Leitura</h4>
-                <div className="text-sm text-muted-foreground bg-muted rounded-lg p-4 whitespace-pre-wrap">
+                <h4 className="text-sm font-semibold mb-2">Notas de Leitura</h4>
+                <div className="text-sm text-muted-foreground bg-secondary rounded-xl p-4 whitespace-pre-wrap border border-border">
                   {book.notes}
                 </div>
               </div>
