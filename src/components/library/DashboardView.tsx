@@ -171,14 +171,11 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
         <KPICard title="Ritmo" value={`${stats.pagesPerDay} pág/dia`} icon={<TrendingUp size={20} />} delay={350} subtitle="Últimos 30 dias" />
       </div>
 
-      {/* Heatmap */}
-      <ReadingHeatmap books={books} />
-
       {/* Book of the Week + Quotes Counter */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {stats.bookOfWeek && (
           <div
-            className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture cursor-pointer hover:border-primary/40 transition-colors"
+            className="rounded-xl bg-card p-5 animate-fade-in border border-border cursor-pointer hover:border-primary/40 transition-colors"
             onClick={() => onBookClick(stats.bookOfWeek!)}
           >
             <div className="flex items-center gap-2 mb-3">
@@ -189,23 +186,23 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
               <img
                 src={stats.bookOfWeek.coverUrl}
                 alt={stats.bookOfWeek.title}
-                className="w-16 h-24 rounded object-cover ornamental-border"
+                className="w-16 h-24 rounded-lg object-cover border border-border"
                 onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
               />
               <div>
-                <p className="font-serif font-semibold text-sm">{stats.bookOfWeek.title}</p>
+                <p className="font-semibold text-sm">{stats.bookOfWeek.title}</p>
                 <p className="text-xs text-muted-foreground">{stats.bookOfWeek.authors}</p>
                 <StarRating rating={stats.bookOfWeek.rating} size={14} />
               </div>
             </div>
           </div>
         )}
-        <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture">
+        <div className="rounded-xl bg-card p-5 animate-fade-in border border-border">
           <div className="flex items-center gap-2 mb-3">
             <Quote size={16} className="text-primary" />
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Citações Salvas</h3>
           </div>
-          <p className="text-3xl font-bold font-serif">{stats.totalQuotes}</p>
+          <p className="text-3xl font-bold">{stats.totalQuotes}</p>
           {stats.lastQuote && (
             <p className="text-xs text-muted-foreground mt-2 italic line-clamp-2">
               "{stats.lastQuote.text}" — {stats.lastQuote.bookTitle}

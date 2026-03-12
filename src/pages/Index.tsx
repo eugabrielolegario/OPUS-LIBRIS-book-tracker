@@ -7,7 +7,7 @@ import BookDetailSheet from '@/components/library/BookDetailSheet';
 import AddBookDialog from '@/components/library/AddBookDialog';
 import { Button } from '@/components/ui/button';
 import {
-  LayoutDashboard, Library, Sun, Moon, Menu, Download, Upload,
+  LayoutDashboard, Library, Menu, Download, Upload,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
