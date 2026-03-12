@@ -169,8 +169,8 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
 
             {/* Edit mode */}
             {editing && (
-              <div className="space-y-3 p-4 rounded-lg bg-muted/50 border border-border">
-                <h4 className="text-sm font-semibold font-serif">Editar Livro</h4>
+              <div className="space-y-3 p-4 rounded-xl bg-secondary/50 border border-border">
+                <h4 className="text-sm font-semibold">Editar Livro</h4>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1 col-span-2">
                     <Label className="text-xs">Título</Label>
