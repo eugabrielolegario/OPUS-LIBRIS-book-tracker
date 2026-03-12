@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { Book } from '@/types/book';
 import KPICard from './KPICard';
-import ReadingHeatmap from './ReadingHeatmap';
 import {
   BookOpen, CheckCircle2, Eye, BookMarked, FileText,
   Star, Award, CalendarDays, TrendingUp, Trophy, Quote, Target,
@@ -22,10 +21,10 @@ interface DashboardViewProps {
 }
 
 const CHART_COLORS = [
-  'hsl(36, 55%, 50%)',
+  'hsl(40, 64%, 58%)',
   'hsl(217, 55%, 55%)',
-  'hsl(30, 8%, 50%)',
-  'hsl(45, 65%, 42%)',
+  'hsl(30, 8%, 45%)',
+  'hsl(45, 60%, 45%)',
   'hsl(0, 50%, 45%)',
 ];
 
@@ -144,19 +143,19 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
   return (
     <div className="space-y-8">
       {/* Desafio Anual */}
-      <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture">
+      <div className="rounded-xl bg-card p-5 animate-fade-in border border-border">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Target size={18} className="text-primary" />
-            <h3 className="text-sm font-semibold font-serif">Desafio de Leitura {new Date().getFullYear()}</h3>
+            <h3 className="text-sm font-semibold">Desafio de Leitura {new Date().getFullYear()}</h3>
           </div>
           <span className="text-sm font-bold text-primary">{stats.thisYear}/{readingGoal}</span>
         </div>
-        <Progress value={Math.min(goalProgress, 100)} className="h-2.5" />
+        <Progress value={Math.min(goalProgress, 100)} className="h-2" />
         <p className="text-xs text-muted-foreground mt-2">
           {goalProgress >= 100
             ? '🎉 Meta alcançada! Parabéns!'
-            : `Faltam ${readingGoal - stats.thisYear} livros — ${pagesPerDayProjection(stats.thisYear, readingGoal)}`}
+            : `Faltam ${readingGoal - stats.thisYear} livros`}
         </p>
       </div>
 
@@ -172,14 +171,11 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
         <KPICard title="Ritmo" value={`${stats.pagesPerDay} pág/dia`} icon={<TrendingUp size={20} />} delay={350} subtitle="Últimos 30 dias" />
       </div>
 
-      {/* Heatmap */}
-      <ReadingHeatmap books={books} />
-
       {/* Book of the Week + Quotes Counter */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {stats.bookOfWeek && (
           <div
-            className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture cursor-pointer hover:border-primary/40 transition-colors"
+            className="rounded-xl bg-card p-5 animate-fade-in border border-border cursor-pointer hover:border-primary/40 transition-colors"
             onClick={() => onBookClick(stats.bookOfWeek!)}
           >
             <div className="flex items-center gap-2 mb-3">
@@ -190,23 +186,23 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
               <img
                 src={stats.bookOfWeek.coverUrl}
                 alt={stats.bookOfWeek.title}
-                className="w-16 h-24 rounded object-cover ornamental-border"
+                className="w-16 h-24 rounded-lg object-cover border border-border"
                 onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
               />
               <div>
-                <p className="font-serif font-semibold text-sm">{stats.bookOfWeek.title}</p>
+                <p className="font-semibold text-sm">{stats.bookOfWeek.title}</p>
                 <p className="text-xs text-muted-foreground">{stats.bookOfWeek.authors}</p>
                 <StarRating rating={stats.bookOfWeek.rating} size={14} />
               </div>
             </div>
           </div>
         )}
-        <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture">
+        <div className="rounded-xl bg-card p-5 animate-fade-in border border-border">
           <div className="flex items-center gap-2 mb-3">
             <Quote size={16} className="text-primary" />
             <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Citações Salvas</h3>
           </div>
-          <p className="text-3xl font-bold font-serif">{stats.totalQuotes}</p>
+          <p className="text-3xl font-bold">{stats.totalQuotes}</p>
           {stats.lastQuote && (
             <p className="text-xs text-muted-foreground mt-2 italic line-clamp-2">
               "{stats.lastQuote.text}" — {stats.lastQuote.bookTitle}
@@ -218,7 +214,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Status Pie */}
-        <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture" style={{ animationDelay: '400ms' }}>
+        <div className="rounded-xl bg-card p-5 animate-fade-in border border-border" style={{ animationDelay: '400ms' }}>
           <h3 className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-widest">Distribuição por Status</h3>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
@@ -231,7 +227,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
                 contentStyle={{
                   backgroundColor: 'hsl(var(--card))',
                   border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: '13px',
                 }}
               />
@@ -241,7 +237,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
         </div>
 
         {/* Genre Bars */}
-        <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture" style={{ animationDelay: '450ms' }}>
+        <div className="rounded-xl bg-card p-5 animate-fade-in border border-border" style={{ animationDelay: '450ms' }}>
           <h3 className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-widest">Top Gêneros</h3>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={genreData} layout="vertical" margin={{ left: 10, right: 10 }}>
@@ -252,7 +248,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
                 contentStyle={{
                   backgroundColor: 'hsl(var(--card))',
                   border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: '13px',
                 }}
               />
@@ -262,7 +258,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
         </div>
 
         {/* Year Bars */}
-        <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture" style={{ animationDelay: '500ms' }}>
+        <div className="rounded-xl bg-card p-5 animate-fade-in border border-border" style={{ animationDelay: '500ms' }}>
           <h3 className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-widest">Livros por Ano</h3>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={yearData} margin={{ left: -10, right: 10 }}>
@@ -273,7 +269,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
                 contentStyle={{
                   backgroundColor: 'hsl(var(--card))',
                   border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   fontSize: '13px',
                 }}
               />
@@ -285,13 +281,13 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
 
       {/* Top Authors */}
       {stats.topAuthors.length > 0 && (
-        <div className="rounded-lg ornamental-border bg-card p-5 animate-fade-in paper-texture">
+        <div className="rounded-xl bg-card p-5 animate-fade-in border border-border">
           <h3 className="text-xs font-semibold text-muted-foreground mb-4 uppercase tracking-widest">Autores Favoritos</h3>
           <div className="space-y-2">
             {stats.topAuthors.map((author, i) => (
               <div key={author.name} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-muted-foreground w-5 font-serif font-bold">{i + 1}</span>
+                  <span className="text-xs text-muted-foreground w-5 font-semibold">{i + 1}</span>
                   <span className="text-sm font-medium">{author.name}</span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -307,25 +303,25 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
       {/* Descobertas do Mês */}
       {stats.recentlyAdded.length > 0 && (
         <div className="animate-fade-in" style={{ animationDelay: '550ms' }}>
-          <h3 className="text-lg font-semibold font-serif mb-4 flex items-center gap-2">
-            ✦ Descobertas Recentes
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            Descobertas Recentes
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {stats.recentlyAdded.map(book => (
               <div
                 key={book.id}
                 onClick={() => onBookClick(book)}
-                className="rounded-lg ornamental-border bg-card p-4 cursor-pointer hover:border-primary/40 transition-colors paper-texture"
+                className="rounded-xl bg-card p-4 cursor-pointer hover:border-primary/40 transition-colors border border-border"
               >
                 <div className="flex gap-3">
                   <img
                     src={book.coverUrl}
                     alt={book.title}
-                    className="w-12 h-18 rounded object-cover"
+                    className="w-12 h-18 rounded-lg object-cover border border-border"
                     onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
                   />
                   <div>
-                    <p className="font-serif font-semibold text-sm leading-tight">{book.title}</p>
+                    <p className="font-semibold text-sm leading-tight">{book.title}</p>
                     <p className="text-xs text-muted-foreground">{book.authors}</p>
                     <StatusBadge status={book.status} className="mt-1" />
                   </div>
@@ -339,7 +335,7 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
       {/* Currently Reading */}
       {stats.readingBooks.length > 0 && (
         <div className="animate-fade-in" style={{ animationDelay: '550ms' }}>
-          <h3 className="text-lg font-semibold font-serif mb-4">📖 Lendo Agora</h3>
+          <h3 className="text-lg font-semibold mb-4">Lendo Agora</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {stats.readingBooks.map(book => {
               const progress = book.pages ? Math.round(((book.pagesRead ?? 0) / book.pages) * 100) : 0;
@@ -347,16 +343,16 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
                 <div
                   key={book.id}
                   onClick={() => onBookClick(book)}
-                  className="flex gap-4 p-4 rounded-lg ornamental-border bg-card hover:border-primary/40 transition-colors cursor-pointer paper-texture"
+                  className="flex gap-4 p-4 rounded-xl bg-card hover:border-primary/40 transition-colors cursor-pointer border border-border"
                 >
                   <img
                     src={book.coverUrl}
                     alt={book.title}
-                    className="w-14 h-20 rounded-md object-cover flex-shrink-0"
+                    className="w-14 h-20 rounded-lg object-cover flex-shrink-0 border border-border"
                     onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm truncate font-serif">{book.title}</p>
+                    <p className="font-semibold text-sm truncate">{book.title}</p>
                     <p className="text-xs text-muted-foreground">{book.authors}</p>
                     <div className="mt-2">
                       <div className="flex justify-between text-xs text-muted-foreground mb-1">
@@ -376,26 +372,30 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
       {/* Recent Reads */}
       {stats.recentlyCompleted.length > 0 && (
         <div className="animate-fade-in" style={{ animationDelay: '600ms' }}>
-          <h3 className="text-lg font-semibold font-serif mb-4">✦ Últimas Leituras</h3>
+          <h3 className="text-lg font-semibold mb-4">Últimas Leituras</h3>
           <div className="space-y-2">
             {stats.recentlyCompleted.map(book => (
               <div
                 key={book.id}
                 onClick={() => onBookClick(book)}
-                className="flex items-center gap-4 p-3 rounded-lg ornamental-border bg-card hover:border-primary/40 transition-colors cursor-pointer"
+                className="flex items-center gap-4 p-3 rounded-xl bg-card hover:border-primary/40 transition-colors cursor-pointer border border-border"
               >
                 <img
                   src={book.coverUrl}
                   alt={book.title}
-                  className="w-10 h-14 rounded object-cover flex-shrink-0"
+                  className="w-10 h-14 rounded-lg object-cover flex-shrink-0 border border-border"
                   onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate font-serif">{book.title}</p>
+                  <p className="font-semibold text-sm truncate">{book.title}</p>
                   <p className="text-xs text-muted-foreground">{book.authors}</p>
                 </div>
-                <StarRating rating={book.rating} size={14} />
-                <StatusBadge status={book.status} />
+                <div className="text-right">
+                  <p className="text-sm font-semibold">{book.rating}★</p>
+                  <p className="text-xs text-muted-foreground">
+                    {book.endDate && new Date(book.endDate).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -405,14 +405,9 @@ const DashboardView = ({ books, onBookClick, readingGoal = 24 }: DashboardViewPr
   );
 };
 
-function pagesPerDayProjection(current: number, goal: number): string {
-  const now = new Date();
-  const endOfYear = new Date(now.getFullYear(), 11, 31);
-  const daysLeft = Math.ceil((endOfYear.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  const remaining = goal - current;
-  if (remaining <= 0) return 'Meta cumprida!';
-  const booksPerMonth = (remaining / (daysLeft / 30)).toFixed(1);
-  return `~${booksPerMonth} livros/mês para atingir a meta`;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function pagesPerDayProjection(_current: number, _goal: number): string {
+  return '';
 }
 
 export default DashboardView;

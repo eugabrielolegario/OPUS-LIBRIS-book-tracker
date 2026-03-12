@@ -89,10 +89,10 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-xl overflow-y-auto paper-texture">
+      <SheetContent className="w-full sm:max-w-xl overflow-y-auto rounded-l-2xl bg-card border-l border-border">
         <SheetHeader className="pb-4">
           <div className="flex items-start justify-between">
-            <SheetTitle className="font-serif text-xl">{book.title}</SheetTitle>
+            <SheetTitle className="text-xl font-semibold">{book.title}</SheetTitle>
             <div className="flex gap-1">
               <Button variant="ghost" size="icon" onClick={startEdit} className="h-8 w-8">
                 <Edit3 size={14} />
@@ -106,7 +106,7 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
                     <Trash2 size={14} />
                   </Button>
                 </AlertDialogTrigger>
-                <AlertDialogContent>
+                <AlertDialogContent className="rounded-2xl bg-card border border-border">
                   <AlertDialogHeader>
                     <AlertDialogTitle>Excluir "{book.title}"?</AlertDialogTitle>
                     <AlertDialogDescription>
@@ -129,7 +129,7 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
         </SheetHeader>
 
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="w-full grid grid-cols-3">
+          <TabsList className="w-full grid grid-cols-3 bg-secondary">
             <TabsTrigger value="details">Detalhes</TabsTrigger>
             <TabsTrigger value="diary">Diário</TabsTrigger>
             <TabsTrigger value="quotes">Citações</TabsTrigger>
@@ -141,7 +141,7 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
               <img
                 src={book.coverUrl}
                 alt={book.title}
-                className="w-28 h-40 rounded-lg object-cover shadow-md flex-shrink-0 ornamental-border"
+                className="w-28 h-40 rounded-xl object-cover flex-shrink-0 border border-border"
                 onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
               />
               <div className="space-y-3 flex-1">
@@ -169,8 +169,8 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
 
             {/* Edit mode */}
             {editing && (
-              <div className="space-y-3 p-4 rounded-lg bg-muted/50 border border-border">
-                <h4 className="text-sm font-semibold font-serif">Editar Livro</h4>
+              <div className="space-y-3 p-4 rounded-xl bg-secondary/50 border border-border">
+                <h4 className="text-sm font-semibold">Editar Livro</h4>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1 col-span-2">
                     <Label className="text-xs">Título</Label>
@@ -293,8 +293,8 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
             {/* Notes */}
             {book.notes && (
               <div>
-                <h4 className="text-sm font-semibold mb-2 font-serif">Notas de Leitura</h4>
-                <div className="text-sm text-muted-foreground bg-muted rounded-lg p-4 whitespace-pre-wrap">
+                <h4 className="text-sm font-semibold mb-2">Notas de Leitura</h4>
+                <div className="text-sm text-muted-foreground bg-secondary rounded-xl p-4 whitespace-pre-wrap border border-border">
                   {book.notes}
                 </div>
               </div>
@@ -303,8 +303,8 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
 
           {/* DIARY TAB */}
           <TabsContent value="diary" className="space-y-4 mt-4">
-            <div className="space-y-3 p-4 rounded-lg bg-muted/30 border border-border">
-              <h4 className="text-sm font-semibold font-serif">Nova Sessão de Leitura</h4>
+            <div className="space-y-3 p-4 rounded-xl bg-secondary/50 border border-border">
+              <h4 className="text-sm font-semibold">Nova Sessão de Leitura</h4>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Data</Label>
@@ -322,7 +322,7 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
                     <button
                       key={m.value}
                       onClick={() => setNewSession(p => ({ ...p, mood: p.mood === m.value ? '' : m.value }))}
-                      className={`text-lg p-1 rounded transition-all ${newSession.mood === m.value ? 'bg-accent scale-110' : 'opacity-50 hover:opacity-100'}`}
+                      className={`text-lg p-1 rounded transition-all ${newSession.mood === m.value ? 'bg-secondary scale-110' : 'opacity-50 hover:opacity-100'}`}
                       title={m.label}
                     >
                       {m.emoji}
@@ -348,14 +348,14 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
             {/* Sessions list */}
             <div className="space-y-2">
               {(book.readingSessions ?? []).slice().reverse().map(session => (
-                <div key={session.id} className="p-3 rounded-lg border border-border bg-card text-sm">
+                <div key={session.id} className="p-3 rounded-xl border border-border bg-card text-sm">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs text-muted-foreground">
                       {new Date(session.date).toLocaleDateString('pt-BR')}
                     </span>
                     <div className="flex items-center gap-2">
                       {session.mood && <span>{MOODS.find(m => m.value === session.mood)?.emoji}</span>}
-                      <Badge variant="secondary" className="text-xs">{session.pagesRead} pág.</Badge>
+                      <span className="text-xs bg-secondary px-2 py-0.5 rounded-full">{session.pagesRead} pág.</span>
                     </div>
                   </div>
                   {session.notes && <p className="text-muted-foreground mt-1">{session.notes}</p>}
@@ -369,8 +369,8 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
 
           {/* QUOTES TAB */}
           <TabsContent value="quotes" className="space-y-4 mt-4">
-            <div className="space-y-3 p-4 rounded-lg bg-muted/30 border border-border">
-              <h4 className="text-sm font-semibold font-serif flex items-center gap-2">
+            <div className="space-y-3 p-4 rounded-xl bg-secondary/50 border border-border">
+              <h4 className="text-sm font-semibold flex items-center gap-2">
                 <QuoteIcon size={14} />
                 Nova Citação
               </h4>
@@ -399,14 +399,14 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
 
             <div className="space-y-3">
               {(book.quotes ?? []).slice().reverse().map(quote => (
-                <div key={quote.id} className="p-4 rounded-lg border border-border bg-card relative group">
+                <div key={quote.id} className="p-4 rounded-xl border border-border bg-card relative group">
                   <button
                     onClick={() => removeQuote(quote.id)}
                     className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
                   >
                     <X size={14} />
                   </button>
-                  <p className="text-sm italic font-serif leading-relaxed">"{quote.text}"</p>
+                  <p className="text-sm italic leading-relaxed">"{quote.text}"</p>
                   <div className="flex gap-3 mt-2 text-xs text-muted-foreground">
                     {quote.page && <span>p. {quote.page}</span>}
                     {quote.chapter && <span>{quote.chapter}</span>}

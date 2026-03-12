@@ -7,7 +7,7 @@ import BookDetailSheet from '@/components/library/BookDetailSheet';
 import AddBookDialog from '@/components/library/AddBookDialog';
 import { Button } from '@/components/ui/button';
 import {
-  LayoutDashboard, Library, Sun, Moon, Menu, Download, Upload,
+  LayoutDashboard, Library, Menu, Download, Upload,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -133,8 +133,8 @@ const Index = () => {
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
         <div className="p-5 border-b border-border">
-          <h1 className="text-lg font-bold font-serif flex items-center gap-2">
-            📚 Minha Biblioteca
+          <h1 className="text-lg font-semibold tracking-tight flex items-center gap-2">
+            OPUS LIBRIS
           </h1>
         </div>
         <nav className="flex-1 p-3 space-y-1">
@@ -145,8 +145,8 @@ const Index = () => {
               className={cn(
                 'flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                 page === item.id
-                  ? 'bg-accent text-accent-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  ? 'bg-secondary text-foreground'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
               )}
             >
               <item.icon size={18} />
@@ -157,23 +157,16 @@ const Index = () => {
         <div className="p-3 border-t border-border space-y-1">
           <button
             onClick={handleExportCSV}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
           >
             <Download size={16} />
             Exportar CSV
           </button>
-          <label className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer">
+          <label className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors cursor-pointer">
             <Upload size={16} />
             Importar CSV
             <input type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
           </label>
-          <button
-            onClick={() => setDark(!dark)}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-          >
-            {dark ? <Sun size={16} /> : <Moon size={16} />}
-            {dark ? 'Modo Claro' : 'Modo Escuro'}
-          </button>
         </div>
       </aside>
 

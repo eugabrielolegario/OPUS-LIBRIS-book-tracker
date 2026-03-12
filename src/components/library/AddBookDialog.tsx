@@ -98,9 +98,9 @@ const AddBookDialog = ({ open, onOpenChange, onAdd }: AddBookDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl bg-card border border-border">
         <DialogHeader>
-          <DialogTitle className="font-serif text-xl">Adicionar Livro</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">Adicionar Livro</DialogTitle>
         </DialogHeader>
 
         {/* Google Books Search */}
