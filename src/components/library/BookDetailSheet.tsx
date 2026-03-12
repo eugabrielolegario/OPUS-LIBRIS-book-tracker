@@ -369,8 +369,8 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
 
           {/* QUOTES TAB */}
           <TabsContent value="quotes" className="space-y-4 mt-4">
-            <div className="space-y-3 p-4 rounded-lg bg-muted/30 border border-border">
-              <h4 className="text-sm font-semibold font-serif flex items-center gap-2">
+            <div className="space-y-3 p-4 rounded-xl bg-secondary/50 border border-border">
+              <h4 className="text-sm font-semibold flex items-center gap-2">
                 <QuoteIcon size={14} />
                 Nova Citação
               </h4>
@@ -399,14 +399,14 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
 
             <div className="space-y-3">
               {(book.quotes ?? []).slice().reverse().map(quote => (
-                <div key={quote.id} className="p-4 rounded-lg border border-border bg-card relative group">
+                <div key={quote.id} className="p-4 rounded-xl border border-border bg-card relative group">
                   <button
                     onClick={() => removeQuote(quote.id)}
                     className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
                   >
                     <X size={14} />
                   </button>
-                  <p className="text-sm italic font-serif leading-relaxed">"{quote.text}"</p>
+                  <p className="text-sm italic leading-relaxed">"{quote.text}"</p>
                   <div className="flex gap-3 mt-2 text-xs text-muted-foreground">
                     {quote.page && <span>p. {quote.page}</span>}
                     {quote.chapter && <span>{quote.chapter}</span>}
