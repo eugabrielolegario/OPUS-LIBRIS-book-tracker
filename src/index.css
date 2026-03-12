@@ -60,6 +60,9 @@
     --sidebar-border: 0 0% 13%;
     --sidebar-ring: 40 64% 58%;
 
+    --gold: 40 55% 58%;
+    --star-inactive: 0 0% 20%;
+
     --font-sans: 'Inter', system-ui, sans-serif;
     --font-serif: 'Inter', system-ui, sans-serif;
   }

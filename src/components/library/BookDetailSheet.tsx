@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Book, STATUSES, BookStatus, GENRES, LANGUAGES, FORMATS, BookGenre, BookLanguage, BookFormat, MOODS, Quote, ReadingSession } from '@/types/book';
+import { Book, STATUSES, BookStatus, GENRES, LANGUAGES, FORMATS, BookGenre, BookLanguage, BookFormat, Quote } from '@/types/book';
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle,
 } from '@/components/ui/sheet';
@@ -35,7 +35,6 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState<Partial<Book>>({});
   const [newQuote, setNewQuote] = useState({ text: '', page: '', chapter: '' });
-  const [newSession, setNewSession] = useState({ date: new Date().toISOString().split('T')[0], pagesRead: '', notes: '', mood: '' });
 
   if (!book) return null;
 
@@ -66,25 +65,6 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
 
   const removeQuote = (qid: string) => {
     onUpdate({ ...book, quotes: (book.quotes ?? []).filter(q => q.id !== qid) });
-  };
-
-  const addSession = () => {
-    if (!newSession.pagesRead) return;
-    const session: ReadingSession = {
-      id: `s-${Date.now()}`,
-      date: newSession.date,
-      pagesRead: parseInt(newSession.pagesRead),
-      notes: newSession.notes,
-      mood: newSession.mood as ReadingSession['mood'] || undefined,
-    };
-    const newPagesRead = (book.pagesRead ?? 0) + session.pagesRead;
-    onUpdate({
-      ...book,
-      readingSessions: [...(book.readingSessions ?? []), session],
-      pagesRead: newPagesRead,
-    });
-    setNewSession({ date: new Date().toISOString().split('T')[0], pagesRead: '', notes: '', mood: '' });
-    toast.success('Sessão registrada!');
   };
 
   return (
@@ -129,9 +109,8 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
         </SheetHeader>
 
         <Tabs defaultValue="details" className="w-full">
-          <TabsList className="w-full grid grid-cols-3 bg-secondary">
+          <TabsList className="w-full grid grid-cols-2 bg-secondary">
             <TabsTrigger value="details">Detalhes</TabsTrigger>
-            <TabsTrigger value="diary">Diário</TabsTrigger>
             <TabsTrigger value="quotes">Citações</TabsTrigger>
           </TabsList>
 
@@ -301,72 +280,6 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
             )}
           </TabsContent>
 
-          {/* DIARY TAB */}
-          <TabsContent value="diary" className="space-y-4 mt-4">
-            <div className="space-y-3 p-4 rounded-xl bg-secondary/50 border border-border">
-              <h4 className="text-sm font-semibold">Nova Sessão de Leitura</h4>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-xs">Data</Label>
-                  <Input type="date" value={newSession.date} onChange={e => setNewSession(p => ({ ...p, date: e.target.value }))} />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Páginas lidas</Label>
-                  <Input type="number" placeholder="0" value={newSession.pagesRead} onChange={e => setNewSession(p => ({ ...p, pagesRead: e.target.value }))} />
-                </div>
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Humor</Label>
-                <div className="flex gap-2 flex-wrap">
-                  {MOODS.map(m => (
-                    <button
-                      key={m.value}
-                      onClick={() => setNewSession(p => ({ ...p, mood: p.mood === m.value ? '' : m.value }))}
-                      className={`text-lg p-1 rounded transition-all ${newSession.mood === m.value ? 'bg-secondary scale-110' : 'opacity-50 hover:opacity-100'}`}
-                      title={m.label}
-                    >
-                      {m.emoji}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Reflexões</Label>
-                <Textarea
-                  value={newSession.notes}
-                  onChange={e => setNewSession(p => ({ ...p, notes: e.target.value }))}
-                  rows={2}
-                  placeholder="O que você pensou durante a leitura?"
-                />
-              </div>
-              <Button size="sm" onClick={addSession} className="w-full gap-1.5">
-                <Plus size={14} />
-                Registrar Sessão
-              </Button>
-            </div>
-
-            {/* Sessions list */}
-            <div className="space-y-2">
-              {(book.readingSessions ?? []).slice().reverse().map(session => (
-                <div key={session.id} className="p-3 rounded-xl border border-border bg-card text-sm">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(session.date).toLocaleDateString('pt-BR')}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      {session.mood && <span>{MOODS.find(m => m.value === session.mood)?.emoji}</span>}
-                      <span className="text-xs bg-secondary px-2 py-0.5 rounded-full">{session.pagesRead} pág.</span>
-                    </div>
-                  </div>
-                  {session.notes && <p className="text-muted-foreground mt-1">{session.notes}</p>}
-                </div>
-              ))}
-              {(!book.readingSessions || book.readingSessions.length === 0) && (
-                <p className="text-sm text-muted-foreground text-center py-8">Nenhuma sessão registrada ainda.</p>
-              )}
-            </div>
-          </TabsContent>
-
           {/* QUOTES TAB */}
           <TabsContent value="quotes" className="space-y-4 mt-4">
             <div className="space-y-3 p-4 rounded-xl bg-secondary/50 border border-border">
@@ -379,16 +292,15 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
                 onChange={e => setNewQuote(p => ({ ...p, text: e.target.value }))}
                 rows={2}
                 placeholder="Digite a citação..."
-                className="italic"
               />
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">Página</Label>
-                  <Input type="number" placeholder="Ex: 42" value={newQuote.page} onChange={e => setNewQuote(p => ({ ...p, page: e.target.value }))} />
+                  <Input type="number" placeholder="Nº" value={newQuote.page} onChange={e => setNewQuote(p => ({ ...p, page: e.target.value }))} />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">Capítulo</Label>
-                  <Input placeholder="Ex: Cap. 3" value={newQuote.chapter} onChange={e => setNewQuote(p => ({ ...p, chapter: e.target.value }))} />
+                  <Input placeholder="Opcional" value={newQuote.chapter} onChange={e => setNewQuote(p => ({ ...p, chapter: e.target.value }))} />
                 </div>
               </div>
               <Button size="sm" onClick={addQuote} className="w-full gap-1.5">
@@ -397,20 +309,18 @@ const BookDetailSheet = ({ book, open, onOpenChange, onUpdate, onDelete, onArchi
               </Button>
             </div>
 
-            <div className="space-y-3">
-              {(book.quotes ?? []).slice().reverse().map(quote => (
-                <div key={quote.id} className="p-4 rounded-xl border border-border bg-card relative group">
-                  <button
-                    onClick={() => removeQuote(quote.id)}
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                  >
-                    <X size={14} />
-                  </button>
-                  <p className="text-sm italic leading-relaxed">"{quote.text}"</p>
-                  <div className="flex gap-3 mt-2 text-xs text-muted-foreground">
-                    {quote.page && <span>p. {quote.page}</span>}
-                    {quote.chapter && <span>{quote.chapter}</span>}
-                    <span>{new Date(quote.addedAt).toLocaleDateString('pt-BR')}</span>
+            <div className="space-y-2">
+              {(book.quotes ?? []).slice().reverse().map(q => (
+                <div key={q.id} className="p-3 rounded-xl border border-border bg-card text-sm group">
+                  <div className="flex justify-between items-start">
+                    <p className="italic text-muted-foreground flex-1">"{q.text}"</p>
+                    <button onClick={() => removeQuote(q.id)} className="opacity-0 group-hover:opacity-100 transition-opacity ml-2">
+                      <X size={14} className="text-muted-foreground hover:text-destructive" />
+                    </button>
+                  </div>
+                  <div className="flex gap-2 mt-1.5">
+                    {q.page && <span className="text-xs text-muted-foreground">p. {q.page}</span>}
+                    {q.chapter && <span className="text-xs text-muted-foreground">• {q.chapter}</span>}
                   </div>
                 </div>
               ))}
